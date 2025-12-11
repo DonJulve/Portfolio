@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Javier Julve - CLI Portfolio</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <style>
+        /* --------------------------------------------------- */
+        /* ESTILO CLI HACKER (Terminal + Naranja Flipper Zero) */
+        /* --------------------------------------------------- */
+
+        :root {
+            --color-bg: #101010;
+            --color-primary: #FF8800;
+            --color-secondary: #00FF00;
+            --color-subtle: #FFAA55;
+            --font-display: 'VT323', monospace;
+            --font-text: 'Share Tech Mono', monospace;
+            --glitch-shadow: 0 0 5px rgba(255, 136, 0, 0.5);
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+        body {
+            background-image: url('assets/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+
+            color: var(--color-primary);
+            font-family: var(--font-text);
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-color: var(--color-bg);
+        }
+
+        /* ------------------------------------------- */
+        /* ESTILO DE LA PANTALLA DE CARGA              */
+        /* ------------------------------------------- */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--color-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            transition: opacity 0.3s ease-out;
+        }
+
+        #loading-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+
+        .login-output {
+            font-family: var(--font-display);
+            font-size: 1.5em;
+            color: var(--color-primary);
+            text-shadow: var(--glitch-shadow);
+            line-height: 1.8;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        /* ------------------------------------------- */
+        /* CURTAIN REVEAL ANIMATION                    */
+        /* ------------------------------------------- */
+
+        #curtain-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999;
+            pointer-events: none;
+            transition: opacity 0.5s linear 1.5s;
+        }
+
+        .curtain-half {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background-color: var(--color-bg);
+            transform: translateY(0);
+        }
+
+        #curtain-top {
+            top: 0;
+        }
+
+        #curtain-bottom {
+            bottom: 0;
+        }
+
+        .curtain-split {
+            transition: transform 1.5s ease-in-out, box-shadow 1.5s ease-in-out;
+        }
+
+        .curtain-top-move {
+            transform: translateY(-100%);
+            box-shadow: 0 5px 15px var(--color-primary);
+        }
+
+        .curtain-bottom-move {
+            transform: translateY(100%);
+            box-shadow: 0 -5px 15px var(--color-primary);
+        }
+
+
+        /* ------------------------------------------- */
+        /* GLITCH Y CURSOR                             */
+        /* ------------------------------------------- */
+        .login-output span {
+            color: var(--color-secondary);
+        }
+
+        .typing-cursor {
+            border-right: .15em solid var(--color-secondary);
+            animation: blink-caret .75s step-end infinite;
+        }
+
+        @keyframes blink-caret {
+
+            from,
+            to {
+                border-color: transparent
+            }
+
+            50% {
+                border-color: var(--color-secondary);
+            }
+        }
+
+        .glitch {
+            position: relative;
+            animation: glitch-anim 0.5s infinite;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 var(--color-primary);
+            clip: rect(44px, 450px, 56px, 0);
+            background-color: var(--color-bg);
+            animation: glitch-anim-before 2s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 var(--color-secondary);
+            clip: rect(85px, 450px, 140px, 0);
+            background-color: var(--color-bg);
+            animation: glitch-anim-after 3s infinite linear alternate;
+        }
+
+        @keyframes glitch-anim-before {
+            0% {
+                clip: rect(20px, 9999px, 80px, 0);
+            }
+
+            50% {
+                clip: rect(60px, 9999px, 120px, 0);
+            }
+
+            100% {
+                clip: rect(40px, 9999px, 100px, 0);
+            }
+        }
+
+        @keyframes glitch-anim-after {
+            0% {
+                clip: rect(100px, 9999px, 180px, 0);
+            }
+
+            50% {
+                clip: rect(140px, 9999px, 220px, 0);
+            }
+
+            100% {
+                clip: rect(120px, 9999px, 200px, 0);
+            }
+        }
+
+
+        /* ------------------------------------------- */
+        /* ESTILO CLI (Contenido Principal)            */
+        /* ------------------------------------------- */
+
+        .cli-container {
+            position: relative;
+            z-index: 10;
+
+            display: none;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+            background-color: rgba(16, 16, 16, 0.85);
+            min-height: 100vh;
+        }
+
+        .cli-visible {
+            opacity: 1;
+        }
+
+        .contact-form-container {
+            padding: 15px 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--color-primary);
+            box-shadow: 0 0 10px rgba(255, 136, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .contact-form-container p {
+            color: var(--color-subtle);
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .form-line {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .cli-label {
+            color: var(--color-secondary);
+            font-family: var(--font-display);
+            font-size: 1.2em;
+            width: 100px;
+            padding-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .cli-input,
+        .cli-textarea {
+            flex-grow: 1;
+            background: var(--color-bg);
+            border: none;
+            border-bottom: 2px dashed var(--color-primary);
+            color: var(--color-subtle);
+            font-family: var(--font-text);
+            font-size: 1em;
+            padding: 5px;
+            outline: none;
+            box-shadow: inset 0 0 5px rgba(255, 136, 0, 0.1);
+        }
+
+        .cli-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .cli-button {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            font-family: var(--font-display);
+            font-size: 1.2em;
+            padding: 8px 20px;
+            border: 2px solid var(--color-primary);
+            box-shadow: 0 0 10px var(--color-primary);
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-left: 100px;
+        }
+
+        .cli-button:hover {
+            background: var(--color-secondary);
+            color: var(--color-bg);
+            box-shadow: 0 0 10px var(--color-secondary);
+        }
+
+        .contact-success {
+            color: var(--color-secondary);
+            font-family: var(--font-display);
+            font-size: 1.3em;
+            padding-left: 10px;
+            margin-top: 20px;
+        }
+
+        .cursor::after {
+            content: '_';
+            animation: blink-cursor 1s step-end infinite;
+            color: var(--color-secondary);
+        }
+
+        @keyframes blink-cursor {
+
+            from,
+            to {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .cli-block {
+            margin-bottom: 30px;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255, 136, 0, 0.2);
+        }
+
+        .cli-prompt {
+            color: var(--color-secondary);
+            font-family: var(--font-display);
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .cli-prompt .path {
+            color: var(--color-secondary);
+        }
+
+        .cli-prompt .command {
+            color: var(--color-primary);
+            margin-left: 5px;
+            text-shadow: var(--glitch-shadow);
+        }
+
+        .welcome-output {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .cli-output-text {
+            color: var(--color-subtle);
+            line-height: 1.5;
+            font-size: 1.1em;
+            padding-left: 10px;
+        }
+
+        .cli-output-text h3 {
+            color: var(--color-primary);
+            font-family: var(--font-display);
+            font-size: 1.3em;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            border: none;
+        }
+
+        .project-card {
+            margin-bottom: 25px;
+            border-left: 2px solid var(--color-primary);
+            padding-left: 15px;
+        }
+
+        .project-card h4 {
+            color: var(--color-secondary);
+            font-family: var(--font-display);
+            font-size: 1.4em;
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        .project-card p {
+            margin-top: 0;
+            margin-bottom: 5px;
+            color: var(--color-subtle);
+        }
+
+        .project-card a {
+            color: var(--color-primary);
+            text-decoration: none;
+            text-shadow: 0 0 3px var(--color-primary);
+            font-family: var(--font-display);
+        }
+
+        .project-card a:hover {
+            text-decoration: underline;
+            color: var(--color-secondary);
+        }
+
+        .icon-list,
+        .contact-info div {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 15px;
+            padding-left: 10px;
+            margin-bottom: 25px;
+        }
+
+        .contact-info img {
+            filter: drop-shadow(0 0 5px var(--color-primary));
+        }
+
+        .github-stats-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+            align-items: flex-start;
+            padding-left: 10px;
+        }
+
+        .null-status-message {
+            font-family: var(--font-display);
+            color: var(--color-secondary);
+            font-size: 1.5em;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px dashed var(--color-primary);
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+                background-image: none;
+            }
+
+            .cli-container {
+                padding: 20px 10px;
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                background-color: var(--color-bg);
+                /* Ensure opaque background */
+                box-sizing: border-box;
+            }
+
+            .cli-prompt {
+                font-size: 1.3em;
+                flex-wrap: wrap;
+                /* Allow wrapping if path is long */
+            }
+
+            .icon-list,
+            .contact-info div {
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .cli-button {
+                margin-left: 0;
+                width: 100%;
+                margin-top: 15px;
+            }
+
+            .form-line {
+                flex-direction: column;
+            }
+
+            .cli-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .cli-input,
+            .cli-textarea {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            img {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loading-screen">
+        <div id="loading-content">
+            <div class="login-output" id="login-output">
+            </div>
+        </div>
+    </div>
+
+    <div id="curtain-wrapper">
+        <div id="curtain-top" class="curtain-half"></div>
+        <div id="curtain-bottom" class="curtain-half"></div>
+    </div>
+
+    <div class="cli-container" id="main-content">
+
+        <div class="welcome-output">
+            <h1 align="center"
+                style="font-family: var(--font-display); color: var(--color-primary); text-shadow: var(--glitch-shadow);">
+                <img
+                    src="https://readme-typing-svg.herokuapp.com/?font=Righteous&size=35&center=true&vCenter=true&color=00FF00&width=500&height=70&duration=4000&lines=ACCESS+GRANTED!;+Javier+Julve+Portfolio;" />
+            </h1>
+        </div>
+
+        <div class="cli-block">
+            <div class="cli-prompt"><span class="path">root@julve-cyberdeck</span>:~ $ <span
+                    class="command cursor">whoami</span></div>
+            <div class="cli-output-text">
+                <p><strong>[STATUS] Cybersecurity Master's Student in UCM</strong></p>
+                <p>Soy Javier Julve, Ingeniero Informático con especialización en <span
+                        style="color: var(--color-secondary);">Administración de Redes</span>, <span
+                        style="color: var(--color-secondary);">Programación Full Stack</span> y <span
+                        style="color: var(--color-secondary);">Ciberseguridad/Pentesting</span>. Mi formación se
+                    complementa con el Máster en Ciberseguridad de la Universidad Complutense de Madrid.</p>
+
+                <h3>&#9679; Desarrollo de Software</h3>
+                <p>Sólida experiencia en lenguajes de bajo nivel (C, C++, Rust), scripting (Python, Go, Shell) y
+                    ecosistemas web modernos (HTML, CSS, JavaScript, TypeScript, Ruby, Haskell). Familiaridad con
+                    frameworks clave como Angular, React, Rails, Flask, Django y Bases de datos como PostgreSQL, MySQL y
+                    MongoDB.</p>
+
+                <h3>&#9679; Ciberseguridad Avanzada & Sistemas</h3>
+                <p>Especialización en:
+                    <span style="color: var(--color-secondary);">Ingeniería Inversa</span>, <span
+                        style="color: var(--color-secondary);">Forensia Digital</span> y <span
+                        style="color: var(--color-secondary);">Hardware Hacking</span>.
+                    Experiencia práctica en Pentesting y explotación de vulnerabilidades en entornos de laboratorio
+                    (Kali Linux, Docker, Raspberry Pi). Dominio de entornos Linux y herramientas de orquestación
+                    (Kubernetes) para asegurar y monitorear aplicaciones.
+                </p>
+
+                <h3>&#9679; Filosofía</h3>
+                <p>Curioso y creativo, me encanta transformar ideas innovadoras en proyectos funcionales, explorando
+                    siempre nuevas tecnologías y retos técnicos. ¡Aquí verás mis proyectos!</p>
+            </div>
+        </div>
+
+        <div class="cli-block skill-group">
+            <div class="cli-prompt"><span class="path">root@julve-cyberdeck</span>:~ $ <span class="command cursor">ls
+                    -l skills</span></div>
+
+            <div class="cli-output-text">
+                <h3>&#9679; Lenguajes (Languages)</h3>
+                <div class="icon-list">
+                    <img
+                        src="https://skillicons.dev/icons?i=c,cpp,bash,rust,py,go,lua,arduino,java,kotlin,ruby,haskell,html,css,javascript,typescript" />
+                </div>
+            </div>
+
+            <div class="cli-output-text">
+                <h3>&#9679; Frameworks & Bases de Datos</h3>
+                <div class="icon-list">
+                    <img
+                        src="https://skillicons.dev/icons?i=angular,react,rails,bootstrap,tailwind,flask,django,postgres,mysql,mongo" />
+                </div>
+            </div>
+
+            <div class="cli-output-text">
+                <h3>&#9679; Herramientas & Entornos (Tools & Environments)</h3>
+                <div class="icon-list">
+                    <img
+                        src="https://skillicons.dev/icons?i=github,git,docker,kubernetes,figma,linux,kali,raspberrypi,neovim,vscode,eclipse,androidstudio,blender" />
+                </div>
+            </div>
+        </div>
+
+        <div class="cli-block github-stats-container">
+            <div class="cli-prompt"><span class="path">root@julve-cyberdeck</span>:~ $ <span class="command cursor">git
+                    status</span></div>
+            <div class="cli-output-text">
+                <h3>&#9679; Repositorios Favoritos</h3>
+
+                <div id="pinned-repos-output" style="display: block;">
+
+                    <div class="project-card">
+                        <h4>[0x01] Julve-BSPWM</h4>
+                        <p>Este es un script Bash que automatiza la configuración de un entorno de hacking profesional
+                            para Kali Linux utilizando el administrador de ventanas en mosaico bspwm.</p>
+                        <img src="https://skillicons.dev/icons?i=bash,lua,python" />
+                        <p><a href="https://github.com/DonJulve/Julve-BSPWM" target="_blank">view source</a></p>
+                    </div>
+
+                    <div class="project-card">
+                        <h4>[0x02] Julve-OneFileLinux</h4>
+                        <p>Este es un sistema operativo linux optimizado creado por mi y con la herramienta aircrack
+                            integrada, pesa tan solo 42 megas y está construido a partir de la versión 3.16.0 de alpine
+                            linux con el kernel vanilla 6.10</p>
+                        <img src="https://skillicons.dev/icons?i=bash" />
+                        <p><a href="https://github.com/DonJulve/Julve-OneFileLinux" target="_blank">view source</a></p>
+                    </div>
+
+                    <div class="project-card">
+                        <h4>[0x03] Compilers-Benchmark-Comparator</h4>
+                        <p>Este repositorio contiene una pipeline que se encarga de realizar gráficas comparativas de
+                            medidas de rendimiento y seguridad en compiladores modernos, en concreto de g++, clang++ y
+                            rustc. Además ha sido mi TFG presentado en la EINA, Universidad de Zaragoza.</p>
+                        <img src="https://skillicons.dev/icons?i=latex,python,bash" />
+                        <p><a href="https://github.com/DonJulve/Compilers-Benchmark-Comparator" target="_blank">view
+                                source</a></p>
+                    </div>
+
+                    <div class="project-card">
+                        <h4>[0x04] Networking_NFC_QR_Flipper_Zero</h4>
+                        <p>Esta aplicación para Flipper Zero permite emular una tarjeta NFC y mostrar un código QR
+                            simultáneamente en la pantalla. Es ideal para situaciones de networking, permitiendo
+                            compartir tu contacto o información de dos formas distintas al mismo tiempo.</p>
+                        <img src="https://skillicons.dev/icons?i=c,bash" />
+                        <p><a href="https://github.com/DonJulve/Networking_NFC_QR_Flipper_Zero" target="_blank">view
+                                source</a></p>
+                    </div>
+
+                    <div class="project-card">
+                        <h4>[0x05] Hackaton_Cyber_Arena_UCM</h4>
+                        <p>Este proyecto contiene el código fuente para el desafío Hackaton Cyber Arena por parte de un
+                            equipo de la UCM.</p>
+                        <img src="https://skillicons.dev/icons?i=go,html,typescript,docker,css,javasciypt" />
+                        <p><a href="https://github.com/DonJulve/Hackaton_Cyber_Arena_UCM" target="_blank">view
+                                source</a></p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="cli-block" id="projects-section">
+            <div class="cli-prompt"><span class="path">root@julve-cyberdeck</span>:~ $ <span class="command cursor">view
+                    /proyects.list</span></div>
+            <div class="cli-output-text">
+                <h3>&#9679; Proyectos Activos</h3>
+
+                <div id="projects-content">
+
+                </div>
+
+                <div id="empty-project-message" class="null-status-message" style="display: none;">
+                    [ERROR 0x00] NULL DATA SOURCE: No se encontraron proyectos activos en este momento.
+                </div>
+            </div>
+        </div>
+
+        <div class="cli-block contact-info">
+            <div class="cli-prompt"><span class="path">root@julve-cyberdeck</span>:~ $ <span class="command cursor">mail
+                    -s "CONTACTO" anjubla65@gmail.com</span></div>
+            <div class="cli-output-text">
+                <h3>&#9679; Conectar & Colaborar</h3>
+
+                <div class="contact-form-container">
+                    <p>¿Tienes alguna pregunta o quieres colaborar? Deja tus datos y me pondré en contacto lo antes
+                        posible.</p>
+
+                    <form id="contact-form">
+                        <div class="form-line">
+                            <label for="name" class="cli-label">Nombre:</label>
+                            <input type="text" id="name" name="name" class="cli-input" required>
+                        </div>
+
+                        <div class="form-line">
+                            <label for="email" class="cli-label">Email:</label>
+                            <input type="email" id="email" name="email" class="cli-input" required>
+                        </div>
+
+                        <div class="form-line">
+                            <label for="message" class="cli-label">Mensaje:</label>
+                            <textarea id="message" name="message" class="cli-textarea" required></textarea>
+                        </div>
+
+                        <button type="submit" class="cli-button">Enviar</button>
+                    </form>
+                </div>
+
+                <div id="contact-status" class="contact-success" style="display:none;">
+                    [STATUS] Email enviado. Espera respuesta en la bandeja de entrada.
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const loginOutput = document.getElementById('login-output');
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingContent = document.getElementById('loading-content');
+        const mainContent = document.getElementById('main-content');
+        const curtainWrapper = document.getElementById('curtain-wrapper');
+        const curtainTop = document.getElementById('curtain-top');
+        const curtainBottom = document.getElementById('curtain-bottom');
+        const contactForm = document.getElementById('contact-form');
+        const contactStatus = document.getElementById('contact-status');
+
+        const projectsContent = document.getElementById('projects-content');
+        const emptyProjectMessage = document.getElementById('empty-project-message');
+
+        const HAS_ACTIVE_PROJECTS = false; // Cambia a 'false' para mostrar el mensaje de error en la sección de proyectos activos
+
+        const TYPING_DELAY = 50;
+        const GLITCH_DURATION = 1500;
+        const SPLIT_DURATION = 1500;
+        const FADE_DURATION = 1000;
+
+        function typeLine(text, element, delay) {
+            return new Promise(resolve => {
+                let i = 0;
+                const lineContainer = document.createElement('div');
+                element.appendChild(lineContainer);
+
+                const currentLine = lineContainer;
+
+                const cursorSpan = document.createElement('span');
+                cursorSpan.classList.add('typing-cursor');
+                currentLine.appendChild(cursorSpan);
+
+                const interval = setInterval(() => {
+                    if (i < text.length) {
+                        const char = text.charAt(i);
+
+                        if (char === '<') {
+                            const endIndex = text.indexOf('>', i);
+                            if (endIndex !== -1) {
+                                const tag = text.substring(i, endIndex + 1);
+                                cursorSpan.insertAdjacentHTML('beforebegin', tag);
+                                i = endIndex + 1;
+                            } else {
+                                cursorSpan.insertAdjacentText('beforebegin', char);
+                                i++;
+                            }
+                        } else {
+                            cursorSpan.insertAdjacentText('beforebegin', char);
+                            i++;
+                        }
+
+                    } else {
+                        clearInterval(interval);
+                        cursorSpan.remove();
+                        resolve();
+                    }
+                }, delay);
+            });
+        }
+
+        function displayActiveProjects() {
+            if (HAS_ACTIVE_PROJECTS) {
+                projectsContent.style.display = 'block';
+                emptyProjectMessage.style.display = 'none';
+            } else {
+                projectsContent.style.display = 'none';
+                emptyProjectMessage.style.display = 'block';
+            }
+        }
+
+        async function startLoginSequence() {
+            displayActiveProjects();
+
+            await typeLine('>> Enter Username: <span style="color: var(--color-primary);">DonJulve</span>', loginOutput, TYPING_DELAY);
+            await new Promise(r => setTimeout(r, 400));
+            await typeLine('>> Enter Password: <span style="color: var(--color-primary);">********</span>', loginOutput, TYPING_DELAY);
+            await new Promise(r => setTimeout(r, 400));
+            await typeLine('[SCANNING] Credentials... (0x43415049)', loginOutput, 20);
+            await new Promise(r => setTimeout(r, 600));
+            await typeLine('[STATUS] <span style="color: var(--color-secondary);">ACCESS GRANTED.</span>', loginOutput, 20);
+            await new Promise(r => setTimeout(r, 800));
+
+            loadingContent.classList.add('glitch');
+            loadingContent.setAttribute('data-text', 'ACCESS GRANTED');
+
+            setTimeout(() => {
+
+                loadingScreen.style.opacity = '0';
+
+                mainContent.style.display = 'block';
+
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+
+                    curtainTop.classList.add('curtain-split', 'curtain-top-move');
+                    curtainBottom.classList.add('curtain-split', 'curtain-bottom-move');
+
+                    setTimeout(() => {
+                        mainContent.classList.add('cli-visible');
+
+                        setTimeout(() => {
+                            curtainWrapper.style.display = 'none';
+                        }, FADE_DURATION);
+
+                    }, SPLIT_DURATION);
+
+                }, 300);
+
+            }, GLITCH_DURATION);
+        }
+
+        contactForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+
+            console.log(`[MAIL] Enviando mensaje de ${name} (${email}): ${message}`);
+
+            contactStatus.style.display = 'block';
+
+            const subject = encodeURIComponent(`CONTACTO PORTFOLIO de ${name}`);
+            const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\n\nMensaje:\n${message}`);
+
+            window.location.href = `mailto:anjubla65@gmail.com?subject=${subject}&body=${body}`;
+        });
+
+
+        function updateSkillIcons() {
+            const isMobile = window.innerWidth <= 768;
+            const icons = document.querySelectorAll('img[src*="skillicons.dev"]');
+            icons.forEach(img => {
+                let src = img.getAttribute('src');
+                let url = new URL(src);
+                let currentPerline = url.searchParams.get('perline');
+
+                if (isMobile) {
+                    if (currentPerline !== '5') {
+                        url.searchParams.set('perline', '5');
+                        img.src = url.toString();
+                    }
+                } else {
+                    if (currentPerline) {
+                        url.searchParams.delete('perline');
+                        img.src = url.toString();
+                    }
+                }
+            });
+        }
+
+        window.addEventListener('resize', () => {
+            clearTimeout(window.resizeTimer);
+            window.resizeTimer = setTimeout(updateSkillIcons, 250);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            startLoginSequence();
+            updateSkillIcons();
+        });
+    </script>
+
+</body>
+
+</html>
