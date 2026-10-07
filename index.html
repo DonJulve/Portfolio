@@ -24,7 +24,25 @@
             --color-primary: #FF8800;
             --color-secondary: #00FF00;
             --color-subtle: #FFAA55;
+            --color-bold: #FFFFFF;
             --glitch-shadow: 0 0 5px rgba(255, 136, 0, 0.5);
+
+            /* Dynamic PCB Colors for Theme FLIPPER */
+            --pcb-trace-color: rgba(255, 136, 0, 0.18);
+            --pcb-pulse-cyan: #FF8800;
+            --pcb-pulse-purple: #00FF00;
+            --pcb-chip-1-stroke: #FF8800;
+            --pcb-chip-1-text: #FF8800;
+            --pcb-chip-1-subtext: #FFAA55;
+            --pcb-chip-2-stroke: #00FF00;
+            --pcb-chip-2-text: #00FF00;
+            --pcb-chip-2-subtext: #80FF80;
+            --pcb-chip-3-stroke: #FF8800;
+            --pcb-chip-3-text: #FF8800;
+            --pcb-chip-3-subtext: #FFAA55;
+            --pcb-chip-4-stroke: #00FF00;
+            --pcb-chip-4-text: #00FF00;
+            --pcb-chip-4-subtext: #80FF80;
         }
 
         /* PALETA 2: NEOCYBERVIM */
@@ -33,18 +51,171 @@
             --color-primary: #ff0055;
             --color-secondary: #2088ff;
             --color-subtle: #74bcfb;
+            --color-bold: #c792ea;
             --glitch-shadow: 0 0 5px rgba(255, 0, 85, 0.5);
+
+            /* Dynamic PCB Colors for Theme CYBER */
+            --pcb-trace-color: rgba(32, 136, 255, 0.18);
+            --pcb-pulse-cyan: #00f2fe;
+            --pcb-pulse-purple: #9d4edd;
+            --pcb-chip-1-stroke: #00f5d4;
+            --pcb-chip-1-text: #00f5d4;
+            --pcb-chip-1-subtext: #80ffea;
+            --pcb-chip-2-stroke: #667eea;
+            --pcb-chip-2-text: #00f2fe;
+            --pcb-chip-2-subtext: #a0c4ff;
+            --pcb-chip-3-stroke: #ff007f;
+            --pcb-chip-3-text: #ff70a6;
+            --pcb-chip-3-subtext: #ffc2d1;
+            --pcb-chip-4-stroke: #764ba2;
+            --pcb-chip-4-text: #9d4edd;
+            --pcb-chip-4-subtext: #e0aaff;
+        }
+
+        strong,
+        b {
+            color: var(--color-bold);
+        }
+
+        .pcb-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .pcb-pulse {
+            stroke-dasharray: 90 450;
+            animation: pcbFlow 3.5s linear infinite;
+        }
+
+        .pulse-1 {
+            animation-delay: 0s;
+        }
+
+        .pulse-2 {
+            animation-delay: 1.2s;
+        }
+
+        .pulse-3 {
+            animation-delay: 2.5s;
+        }
+
+        .pulse-4 {
+            animation-delay: 0.7s;
+        }
+
+        .pulse-5 {
+            animation-delay: 0.4s;
+        }
+
+        .pulse-6 {
+            animation-delay: 1.8s;
+        }
+
+        .pulse-7 {
+            animation-delay: 2.9s;
+        }
+
+        .pulse-8 {
+            animation-delay: 1.0s;
+        }
+
+        @keyframes pcbFlow {
+            0% {
+                stroke-dashoffset: 540;
+            }
+
+            100% {
+                stroke-dashoffset: -540;
+            }
+        }
+
+        .pcb-node {
+            animation: nodePulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes nodePulse {
+            0% {
+                r: 4;
+                fill: #0b0f19;
+                stroke: var(--pcb-pulse-cyan);
+            }
+
+            100% {
+                r: 6;
+                fill: var(--pcb-pulse-cyan);
+                stroke: #ffffff;
+            }
+        }
+
+        .chip-glow {
+            transition: all 0.3s ease;
+            animation: chipLighting 3.5s ease-in-out infinite;
+        }
+
+        .chip-glow-1 {
+            animation-delay: 0.8s;
+            color: var(--pcb-chip-1-text);
+        }
+
+        .chip-glow-2 {
+            animation-delay: 2.3s;
+            color: var(--pcb-chip-2-text);
+        }
+
+        .chip-glow-3 {
+            animation-delay: 1.4s;
+            color: var(--pcb-chip-3-text);
+        }
+
+        .chip-glow-4 {
+            animation-delay: 2.9s;
+            color: var(--pcb-chip-4-text);
+        }
+
+        @keyframes chipLighting {
+
+            0%,
+            65%,
+            100% {
+                filter: drop-shadow(0 0 2px transparent);
+            }
+
+            25%,
+            40% {
+                filter: drop-shadow(0 0 16px currentColor);
+            }
         }
 
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
 
-        body {
+        /* CLASES DE MODO DE FONDO (FONDO ESTÁTICO vs PLACA BASE CHIPS) */
+        .bg-mode-image {
             background-image: var(--bg-image);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
+        }
 
+        .bg-mode-image .pcb-container {
+            display: none !important;
+        }
+
+        .bg-mode-chips {
+            background-image: none !important;
+        }
+
+        .bg-mode-chips .pcb-container {
+            display: block !important;
+        }
+
+        body {
             color: var(--color-primary);
             font-family: var(--font-text);
             padding: 0;
@@ -524,6 +695,155 @@
 
 <body>
 
+    <div class="pcb-container">
+        <svg class="pcb-svg" width="100%" height="100%" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+                <filter id="glow-purple" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+            </defs>
+
+            <!-- PCB Static Circuit Traces (Connected Directly to Microchip Pins) -->
+            <g stroke="var(--pcb-trace-color)" stroke-width="2" fill="none">
+                <!-- Outer Terminal Branch Traces -->
+                <path d="M 152 198 L 280 198 L 380 280 L 440 280" />
+                <path d="M 152 222 L 240 222 L 330 310 L 460 310" />
+                <path d="M 152 622 L 270 622 L 360 720 L 440 720" />
+                <path d="M 1248 198 L 1120 198 L 1020 280 L 960 280" />
+                <path d="M 1248 222 L 1160 222 L 1070 140 L 980 140" />
+                <path d="M 1248 622 L 1130 622 L 1040 720 L 950 720" />
+
+                <!-- Cross-Card Organic Traces (Passing Behind Portfolio CLI Container) -->
+                <path
+                    d="M 152 198 L 260 198 L 370 310 L 520 310 L 640 430 L 760 430 L 880 310 L 1030 310 L 1140 198 L 1248 198"
+                    stroke="var(--pcb-trace-color)" stroke-width="2.5" />
+                <path
+                    d="M 152 246 L 270 246 L 390 140 L 500 140 L 620 260 L 780 260 L 900 140 L 1010 140 L 1130 246 L 1248 246"
+                    stroke="var(--pcb-trace-color)" stroke-width="2" />
+                <path
+                    d="M 40 435 L 180 435 L 290 510 L 440 510 L 560 390 L 840 390 L 960 510 L 1110 510 L 1220 435 L 1360 435"
+                    stroke="var(--pcb-trace-color)" stroke-width="2.5" />
+                <path
+                    d="M 152 622 L 250 622 L 370 750 L 530 750 L 670 630 L 730 630 L 870 750 L 1030 750 L 1150 622 L 1248 622"
+                    stroke="var(--pcb-trace-color)" stroke-width="2" />
+                <path
+                    d="M 152 646 L 280 646 L 380 540 L 480 540 L 600 660 L 800 660 L 920 540 L 1020 540 L 1120 646 L 1248 646"
+                    stroke="var(--pcb-trace-color)" stroke-width="2.5" />
+            </g>
+
+            <!-- PCB Animated Electric Pulses (Theme Responsive Current Flow) -->
+            <g stroke-linecap="round" fill="none">
+                <!-- Terminal Branch Pulses -->
+                <path class="pcb-pulse pulse-1" d="M 152 198 L 280 198 L 380 280 L 440 280"
+                    stroke="var(--pcb-pulse-cyan)" stroke-width="3" filter="url(#glow-cyan)" />
+                <path class="pcb-pulse pulse-3" d="M 152 622 L 270 622 L 360 720 L 440 720"
+                    stroke="var(--pcb-pulse-purple)" stroke-width="3.5" filter="url(#glow-cyan)" />
+                <path class="pcb-pulse pulse-2" d="M 1248 198 L 1120 198 L 1020 280 L 960 280"
+                    stroke="var(--pcb-pulse-cyan)" stroke-width="3" filter="url(#glow-purple)" />
+                <path class="pcb-pulse pulse-4" d="M 1248 622 L 1130 622 L 1040 720 L 950 720"
+                    stroke="var(--pcb-pulse-purple)" stroke-width="3.5" filter="url(#glow-purple)" />
+
+                <!-- Cross-Card Pulses Passing Behind CLI Container -->
+                <path class="pcb-pulse pulse-7"
+                    d="M 152 198 L 260 198 L 370 310 L 520 310 L 640 430 L 760 430 L 880 310 L 1030 310 L 1140 198 L 1248 198"
+                    stroke="var(--pcb-pulse-cyan)" stroke-width="4" filter="url(#glow-cyan)" />
+                <path class="pcb-pulse pulse-2"
+                    d="M 152 246 L 270 246 L 390 140 L 500 140 L 620 260 L 780 260 L 900 140 L 1010 140 L 1130 246 L 1248 246"
+                    stroke="var(--pcb-pulse-purple)" stroke-width="3.5" filter="url(#glow-purple)" />
+                <path class="pcb-pulse pulse-8"
+                    d="M 40 435 L 180 435 L 290 510 L 440 510 L 560 390 L 840 390 L 960 510 L 1110 510 L 1220 435 L 1360 435"
+                    stroke="var(--pcb-pulse-cyan)" stroke-width="4" filter="url(#glow-cyan)" />
+                <path class="pcb-pulse pulse-3"
+                    d="M 152 622 L 250 622 L 370 750 L 530 750 L 670 630 L 730 630 L 870 750 L 1030 750 L 1150 622 L 1248 622"
+                    stroke="var(--pcb-pulse-purple)" stroke-width="3.5" filter="url(#glow-cyan)" />
+                <path class="pcb-pulse pulse-5"
+                    d="M 152 646 L 280 646 L 380 540 L 480 540 L 600 660 L 800 660 L 920 540 L 1020 540 L 1120 646 L 1248 646"
+                    stroke="var(--pcb-pulse-cyan)" stroke-width="3.5" filter="url(#glow-cyan)" />
+            </g>
+
+            <!-- PCB Micro Vias -->
+            <g fill="var(--color-bg)">
+                <circle cx="440" cy="280" r="4.5" class="pcb-node" />
+                <circle cx="440" cy="720" r="4.5" class="pcb-node" />
+                <circle cx="960" cy="280" r="4.5" class="pcb-node" />
+                <circle cx="950" cy="720" r="4.5" class="pcb-node" />
+                <circle cx="640" cy="430" r="5" class="pcb-node" />
+                <circle cx="760" cy="430" r="5" class="pcb-node" />
+            </g>
+
+            <!-- Left Top Microchip: SISENER-DEV -->
+            <g transform="translate(60, 180)" class="chip-glow chip-glow-1">
+                <rect x="0" y="0" width="84" height="84" rx="8" fill="var(--color-bg)" stroke="var(--pcb-chip-1-stroke)"
+                    stroke-width="2" />
+                <rect x="12" y="12" width="60" height="60" rx="5" fill="var(--color-bg)"
+                    stroke="var(--pcb-chip-1-stroke)" stroke-width="1.5" />
+                <text x="42" y="42" fill="var(--pcb-chip-1-text)" font-size="9.5" font-weight="bold"
+                    font-family="monospace" text-anchor="middle">SISENER-DEV</text>
+                <text x="42" y="56" fill="var(--pcb-chip-1-subtext)" font-size="7.5" font-family="monospace"
+                    text-anchor="middle">SIS-8086 • REV2</text>
+                <path
+                    d="M -8 18 L 0 18 M -8 42 L 0 42 M -8 66 L 0 66 M 84 18 L 92 18 M 84 42 L 92 42 M 84 66 L 92 66 M 18 -8 L 18 0 M 42 -8 L 42 0 M 66 -8 L 66 0 M 18 84 L 18 92 M 42 84 L 42 92 M 66 84 L 66 92"
+                    stroke="var(--color-primary)" stroke-width="2" />
+            </g>
+
+            <!-- Left Bottom Microchip: USJ-PROF -->
+            <g transform="translate(60, 580)" class="chip-glow chip-glow-2">
+                <rect x="0" y="0" width="84" height="84" rx="8" fill="var(--color-bg)" stroke="var(--pcb-chip-2-stroke)"
+                    stroke-width="2" />
+                <rect x="12" y="12" width="60" height="60" rx="5" fill="var(--color-bg)"
+                    stroke="var(--pcb-chip-2-stroke)" stroke-width="1.5" />
+                <text x="42" y="42" fill="var(--pcb-chip-2-text)" font-size="10" font-weight="bold"
+                    font-family="monospace" text-anchor="middle">USJ-PROF</text>
+                <text x="42" y="56" fill="var(--pcb-chip-2-subtext)" font-size="7.5" font-family="monospace"
+                    text-anchor="middle">USJ-32BIT • MCU</text>
+                <path
+                    d="M -8 18 L 0 18 M -8 42 L 0 42 M -8 66 L 0 66 M 84 18 L 92 18 M 84 42 L 92 42 M 84 66 L 92 66 M 18 -8 L 18 0 M 42 -8 L 42 0 M 66 -8 L 66 0 M 18 84 L 18 92 M 42 84 L 42 92 M 66 84 L 66 92"
+                    stroke="var(--color-primary)" stroke-width="2" />
+            </g>
+
+            <!-- Right Top Microchip: TFG-PAPER -->
+            <g transform="translate(1256, 180)" class="chip-glow chip-glow-3">
+                <rect x="0" y="0" width="84" height="84" rx="8" fill="var(--color-bg)" stroke="var(--pcb-chip-3-stroke)"
+                    stroke-width="2" />
+                <rect x="12" y="12" width="60" height="60" rx="5" fill="var(--color-bg)"
+                    stroke="var(--pcb-chip-3-stroke)" stroke-width="1.5" />
+                <text x="42" y="42" fill="var(--pcb-chip-3-text)" font-size="9.5" font-weight="bold"
+                    font-family="monospace" text-anchor="middle">TFG-PAPER</text>
+                <text x="42" y="56" fill="var(--pcb-chip-3-subtext)" font-size="7.5" font-family="monospace"
+                    text-anchor="middle">IEEE-PUB • 10/10</text>
+                <path
+                    d="M -8 18 L 0 18 M -8 42 L 0 42 M -8 66 L 0 66 M 84 18 L 92 18 M 84 42 L 92 42 M 84 66 L 92 66 M 18 -8 L 18 0 M 42 -8 L 42 0 M 66 -8 L 66 0 M 18 84 L 18 92 M 42 84 L 42 92 M 66 84 L 66 92"
+                    stroke="var(--color-primary)" stroke-width="2" />
+            </g>
+
+            <!-- Right Bottom Microchip: HEIMDALL -->
+            <g transform="translate(1256, 580)" class="chip-glow chip-glow-4">
+                <rect x="0" y="0" width="84" height="84" rx="8" fill="var(--color-bg)" stroke="var(--pcb-chip-4-stroke)"
+                    stroke-width="2" />
+                <rect x="12" y="12" width="60" height="60" rx="5" fill="var(--color-bg)"
+                    stroke="var(--pcb-chip-4-stroke)" stroke-width="1.5" />
+                <text x="42" y="42" fill="var(--pcb-chip-4-text)" font-size="10" font-weight="bold"
+                    font-family="monospace" text-anchor="middle">HEIMDALL</text>
+                <text x="42" y="56" fill="var(--pcb-chip-4-subtext)" font-size="7.5" font-family="monospace"
+                    text-anchor="middle">GRAPH-AI • ATT&CK</text>
+                <path
+                    d="M -8 18 L 0 18 M -8 42 L 0 42 M -8 66 L 0 66 M 84 18 L 92 18 M 84 42 L 92 42 M 84 66 L 92 66 M 18 -8 L 18 0 M 42 -8 L 42 0 M 66 -8 L 66 0 M 18 84 L 18 92 M 42 84 L 42 92 M 66 84 L 66 92"
+                    stroke="var(--color-primary)" stroke-width="2" />
+            </g>
+        </svg>
+    </div>
+
     <div id="loading-screen">
         <div id="loading-content">
             <div class="login-output" id="login-output">
@@ -550,8 +870,10 @@
             <div class="cli-prompt"><span class="path">root@julve-cyberdeck</span>:~$ <span
                     class="command cursor">whoami</span></div>
             <div class="cli-output-text">
-                <p><strong>[STATUS] Especialista en Hardware Hacking & Reverse Engineering | Ciberseguridad Ofensiva |
-                        Ingeniero Informático | Programador Full Stack & Redes</strong></p>
+                <p><strong>[STATUS] Especialista en Hardware Hacking &amp; Reverse Engineering | Ciberseguridad Ofensiva
+                        |
+                        Ingeniero Informático | Profesor en Universidad San Jorge | Programador Full Stack &amp;
+                        Redes</strong></p>
                 <p>Soy Javier Julve, Ingeniero Informático con especialidad en Ingeniería de Computadores. Mi pasión y
                     enfoque principal residen en el <span style="color: var(--color-secondary);">Hardware
                         Hacking</span>, la <span style="color: var(--color-secondary);">Ingeniería Inversa</span> y la
@@ -836,6 +1158,21 @@
             </div>
         </div>
 
+        <div class="cli-block">
+            <div class="cli-prompt"><span class="path">root@julve-cyberdeck</span>:~$ <span class="command cursor">wget
+                    https://donjulve.github.io/VCard/</span></div>
+            <div class="cli-output-text">
+                <h3>&#9679; Tarjeta de Contacto Virtual (vCard)</h3>
+                <p>Accede a mi tarjeta de contacto interactiva y descarga mis datos en formato vCard / NFC / QR:</p>
+                <p style="margin-top: 10px;">
+                    <a href="https://donjulve.github.io/VCard/" target="_blank"
+                        style="color: var(--color-primary); font-family: var(--font-display); font-size: 1.3em; text-decoration: none; text-shadow: var(--glitch-shadow);">
+                        [ HTTP 200 OK ] &rarr; https://donjulve.github.io/VCard/
+                    </a>
+                </p>
+            </div>
+        </div>
+
         <div class="cli-block contact-info">
             <div class="cli-prompt"><span class="path">root@julve-cyberdeck</span>:~$ <span class="command cursor">mail
                     -s "CONTACTO" anjubla65@gmail.com</span></div>
@@ -877,17 +1214,27 @@
 
     <script>
         // -------------------------------------------------------------------
-        // CONFIGURACIÓN DE TEMA
-        // Opciones: 'FLIPPER' (Naranja/Verde) o 'CYBER' (NeoCyberVim: Rojo/Cyan)
+        // CONFIGURACIÓN DE TEMA Y MODO DE FONDO DE PANTALLA
+        // Paletas Disponibles: 'FLIPPER' (Naranja/Verde) o 'CYBER' (NeoCyberVim: Rojo/Cyan)
+        // Fondos Disponibles:  'FLIPPER' (Planos del Flipper Zero) o 'CHIPS' (Placa Base SVG Animada con Microchips)
         // -------------------------------------------------------------------
 
         // const CURRENT_THEME = 'FLIPPER'; 
         const CURRENT_THEME = 'CYBER';
 
+        // const BACKGROUND_MODE = 'FLIPPER';
+        const BACKGROUND_MODE = 'CHIPS';
+
         if (CURRENT_THEME === 'CYBER') {
             document.body.classList.add('theme-cyber');
         } else if (CURRENT_THEME === 'FLIPPER') {
             document.body.classList.add('theme-flipper');
+        }
+
+        if (BACKGROUND_MODE === 'CHIPS') {
+            document.body.classList.add('bg-mode-chips');
+        } else if (BACKGROUND_MODE === 'FLIPPER') {
+            document.body.classList.add('bg-mode-image');
         }
 
         const loginOutput = document.getElementById('login-output');
